@@ -1,7 +1,9 @@
-// Base URL for local development.
-// IF RUNNING LOCALLY: Use 'http://127.0.0.1:8000'
-// IF RUNNING IN CLOUD/PREVIEW: You MUST use an https tunnel (e.g. ngrok) and put that URL here.
-const BASE_URL = 'http://localhost:8000';
+// Base URL for local development vs production
+// Automatically detects if running on localhost
+const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+const BASE_URL = isLocal
+  ? 'http://localhost:8000'
+  : 'https://ordereasy-backend-fwl1.onrender.com';
 
 export const api = {
   request: async <T,>(endpoint: string, options: RequestInit = {}): Promise<T> => {
