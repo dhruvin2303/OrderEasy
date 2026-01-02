@@ -27,7 +27,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const isActive = (path: string) => location.pathname === path;
 
   const navItems = [
-    { label: 'Dashboard', path: '/', icon: LayoutDashboard },
+    { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
     { label: 'Orders', path: '/orders', icon: Package },
     { label: 'Analytics', path: '/analytics', icon: BarChart2 },
     { label: 'Exports', path: '/exports', icon: FileText },
