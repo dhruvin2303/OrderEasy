@@ -29,9 +29,7 @@ export const api = {
 
     if (response.status === 401) {
       // Handle unauthorized (session expired)
-      if (!window.location.hash.includes('/login')) {
-        window.location.hash = '#/login';
-      }
+      // Removed automatic redirect to login: User requested manual control
       throw new Error('Unauthorized: Please login again.');
     }
 
