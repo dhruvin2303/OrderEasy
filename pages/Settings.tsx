@@ -56,7 +56,6 @@ const Settings: React.FC = () => {
     };
 
     const handleDeleteAccount = async () => {
-        if (!window.confirm("FINAL WARNING: This action cannot be undone. All your data will be lost forever.")) return;
 
         try {
             await api.delete('/auth/delete-account');
