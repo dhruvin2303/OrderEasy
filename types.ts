@@ -62,6 +62,33 @@ export interface CurrentMonthMetrics {
   units_delivered: number;
 }
 
+// Dashboard - New Widgets
+export interface BubbleChartData {
+  name: string;
+  quantity: number;
+  revenue: number;
+  orders: number;
+}
+
+export interface RecentActivityData {
+  id: string;
+  product: string;
+  receiver: string;
+  amount: number;
+  quantity: number;
+  status: string;
+  payment_status: string;
+  date: string;
+}
+
+export interface FulfillmentGapData {
+  order_id: number;
+  product: string;
+  expected: string;
+  actual: string;
+  days_gap: number;
+}
+
 // Analytics - Forecasting
 export interface ForecastResponse {
   r2_score: number;
