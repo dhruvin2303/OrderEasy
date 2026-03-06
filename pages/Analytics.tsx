@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { api } from '../services/api';
 import AnalyticsSkeleton from '../components/skeletons/AnalyticsSkeleton';
 import { CustomerSegmentationDetails } from '../components/CustomerSegmentationDetails';
@@ -56,6 +56,11 @@ import {
   ChevronLeft,
   ChevronRight
 } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+
+// ✅ Module-level cache — survives tab switches and page navigation.
+// Only cleared on browser refresh or when user explicitly clicks "Refresh".
+let aiSummaryModuleCache: string | null = null;
 
 const Analytics: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'revenue' | 'operations' | 'forecast' | 'customers'>('revenue');
@@ -78,6 +83,12 @@ const Analytics: React.FC = () => {
   // Customer State
   const [rfm, setRfm] = useState<RFMResponse | null>(null);
   const [topCust, setTopCust] = useState<TopCustomers | null>(null);
+
+  // AI Insights State
+  const [aiSummary, setAiSummary] = useState<string | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState<string | null>(null);
+  const [aiRetryKey, setAiRetryKey] = useState(0);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -166,6 +177,45 @@ const Analytics: React.FC = () => {
     fetchData(controller.signal);
     return () => controller.abort();
   }, [activeTab]);
+
+  // Fetch AI Summary Effect — only triggers on Forecast tab, uses module-level cache
+  useEffect(() => {
+    if (activeTab !== 'forecast') return;
+
+    // Use the module-level cache if available (survives tab switches & navigation)
+    if (aiSummaryModuleCache && !aiError) {
+      setAiSummary(aiSummaryModuleCache);
+      return;
+    }
+
+    const fetchAi = async () => {
+      setAiLoading(true);
+      setAiError(null);
+      try {
+        const res = await api.get<any>('/analytics/ai-summary');
+        // Store in module cache — persists until hard refresh or explicit Refresh click
+        aiSummaryModuleCache = res.summary;
+        setAiSummary(res.summary);
+      } catch (err: any) {
+        console.error("Failed to fetch AI summary", err);
+        setAiError(err.message?.includes('503') || err.message?.includes('temporarily')
+          ? "AI is rate-limited. Please wait ~30 seconds and click Retry."
+          : "Could not connect to the AI service.");
+      } finally {
+        setAiLoading(false);
+      }
+    };
+
+    fetchAi();
+  }, [activeTab, aiRetryKey]);
+
+  // Handler: clear cache and force a fresh AI call
+  const handleAiRefresh = () => {
+    aiSummaryModuleCache = null;
+    setAiSummary(null);
+    setAiError(null);
+    setAiRetryKey(k => k + 1);
+  };
 
   // Helpers
   const toChartData = (data: any, keyName: string, valName: string) => {
@@ -449,55 +499,113 @@ const Analytics: React.FC = () => {
           )}
 
           {/* 3. FORECAST & AI */}
-          {activeTab === 'forecast' && forecast && (
+          {activeTab === 'forecast' && (
             <div className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <KpiCard title="Model Accuracy (R²)" value={`${(forecast.r2_score * 100).toFixed(1)}%`} sub="Robust Log-Linear Regression" icon={Sparkles} color="bg-purple-100 text-purple-600" />
-                <KpiCard title="Next 12 Months" value={`₹${forecast.forecast_12_months.reduce((a, b) => a + b.predicted_revenue, 0).toLocaleString()}`} sub="Total Predicted Revenue" icon={TrendingUp} color="bg-blue-100 text-blue-600" />
-                <KpiCard title="Confidence Level" value={forecast.confidence_level} sub="Statistical Certainty" icon={AlertCircle} color="bg-emerald-100 text-emerald-600" />
-              </div>
 
-              <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
-                <h3 className="font-bold text-lg text-slate-800 mb-6">Historical vs Forecast (12 Months)</h3>
-                <div className="h-96">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <ComposedChart data={[
-                      // Map Historical Data
-                      ...(forecast.historical_data || []).map(h => ({
-                        month: h.month,
-                        Actual: h.revenue,
-                        Predicted: null, // Don't show prediction line for history
-                        upper_bound: null,
-                        lower_bound: null
-                      })),
-                      // Connecting Point (Last Historical matches First Forecast start? Optional, but good for continuity)
-                      // Map Forecast Data
-                      ...forecast.forecast_12_months.map(f => ({
-                        month: f.month,
-                        Actual: null, // Don't show actual line for future
-                        Predicted: f.predicted_revenue,
-                        upper_bound: f.upper_bound,
-                        lower_bound: f.lower_bound
-                      }))
-                    ]}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                      <XAxis dataKey="month" axisLine={false} tickLine={false} />
-                      <YAxis axisLine={false} tickLine={false} tickFormatter={formatYAxis} />
-                      <Tooltip formatter={(val: number) => `₹${val.toLocaleString()}`} />
-                      <Legend verticalAlign="top" />
+              {/* AI Executive Summary Card */}
+              <div className="bg-gradient-to-br from-indigo-900 via-purple-900 to-indigo-950 p-6 md:p-8 rounded-2xl shadow-xl shadow-indigo-900/20 text-white relative overflow-hidden">
+                {/* Decorative blobs */}
+                <div className="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 bg-fuchsia-500 rounded-full mix-blend-screen filter blur-[80px] opacity-30 animate-pulse"></div>
+                <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-64 h-64 bg-indigo-500 rounded-full mix-blend-screen filter blur-[80px] opacity-30 animate-pulse" style={{ animationDelay: '1s' }}></div>
 
-                      {/* Confidence Interval Area */}
-                      <Area type="monotone" dataKey="upper_bound" stroke="none" fill="#e9d5ff" fillOpacity={0.3} name="Confidence Interval" />
+                <div className="relative z-10">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-white/10 rounded-lg backdrop-blur-sm border border-white/20">
+                        <Sparkles className="w-6 h-6 text-fuchsia-300" />
+                      </div>
+                      <div>
+                        <h2 className="text-xl font-bold text-white tracking-tight">AI Executive Summary</h2>
+                        <p className="text-indigo-300 text-xs mt-0.5">Powered by Google Gemini · Cached for this session</p>
+                      </div>
+                    </div>
+                    {aiSummary && !aiLoading && (
+                      <button
+                        onClick={handleAiRefresh}
+                        className="text-xs text-indigo-300 hover:text-white border border-white/20 px-3 py-1.5 rounded-lg hover:bg-white/10 transition-all flex items-center gap-1.5"
+                      >
+                        <Sparkles className="w-3 h-3" /> Refresh
+                      </button>
+                    )}
+                  </div>
 
-                      {/* Actual Revenue Line (Solid Blue) */}
-                      <Line type="monotone" dataKey="Actual" stroke="#2563eb" strokeWidth={3} dot={{ r: 4 }} name="Actual Revenue" connectNulls={false} />
-
-                      {/* Predicted Revenue Line (Dashed Purple) */}
-                      <Line type="monotone" dataKey="Predicted" stroke="#7c3aed" strokeWidth={3} strokeDasharray="5 5" dot={{ r: 4 }} name="AI Prediction" connectNulls={false} />
-                    </ComposedChart>
-                  </ResponsiveContainer>
+                  {aiLoading ? (
+                    <div className="space-y-3 animate-pulse">
+                      <div className="h-4 bg-white/20 rounded w-3/4"></div>
+                      <div className="h-4 bg-white/20 rounded w-1/2"></div>
+                      <div className="h-4 bg-white/20 rounded w-5/6"></div>
+                      <div className="h-4 bg-white/20 rounded w-2/3"></div>
+                      <p className="text-indigo-200 text-sm mt-4 font-medium flex items-center gap-2">
+                        <div className="w-4 h-4 border-2 border-indigo-200 border-t-white rounded-full animate-spin" />
+                        Gemini is analyzing your business patterns...
+                      </p>
+                    </div>
+                  ) : aiError ? (
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 bg-white/10 backdrop-blur-sm rounded-xl border border-white/20">
+                      <div className="flex items-center gap-3">
+                        <AlertCircle className="w-5 h-5 text-amber-300 flex-shrink-0" />
+                        <p className="text-indigo-100 text-sm">{aiError}</p>
+                      </div>
+                      <button
+                        onClick={() => setAiRetryKey(k => k + 1)}
+                        className="flex-shrink-0 text-sm font-bold bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg border border-white/30 transition-all flex items-center gap-2"
+                      >
+                        <Sparkles className="w-4 h-4" /> Retry
+                      </button>
+                    </div>
+                  ) : aiSummary ? (
+                    <div className="prose prose-invert max-w-none prose-p:text-indigo-50/90 prose-strong:text-white prose-strong:font-bold prose-ul:text-indigo-50/90 prose-p:leading-relaxed">
+                      <ReactMarkdown>{aiSummary}</ReactMarkdown>
+                    </div>
+                  ) : (
+                    <p className="text-indigo-300 text-sm">Loading revenue data to generate insights...</p>
+                  )}
                 </div>
               </div>
+
+              {/* Forecast KPIs + Charts — only rendered when data is available */}
+              {forecast && (
+                <>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <KpiCard title="Model Accuracy (R²)" value={`${(forecast.r2_score * 100).toFixed(1)}%`} sub="Robust Log-Linear Regression" icon={Sparkles} color="bg-purple-100 text-purple-600" />
+                    <KpiCard title="Next 12 Months" value={`₹${forecast.forecast_12_months.reduce((a, b) => a + b.predicted_revenue, 0).toLocaleString()}`} sub="Total Predicted Revenue" icon={TrendingUp} color="bg-blue-100 text-blue-600" />
+                    <KpiCard title="Confidence Level" value={forecast.confidence_level} sub="Statistical Certainty" icon={AlertCircle} color="bg-emerald-100 text-emerald-600" />
+                  </div>
+
+                  <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                    <h3 className="font-bold text-lg text-slate-800 mb-6">Historical vs Forecast (12 Months)</h3>
+                    <div className="h-96">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <ComposedChart data={[
+                          ...(forecast.historical_data || []).map(h => ({
+                            month: h.month,
+                            Actual: h.revenue,
+                            Predicted: null,
+                            upper_bound: null,
+                            lower_bound: null
+                          })),
+                          ...forecast.forecast_12_months.map(f => ({
+                            month: f.month,
+                            Actual: null,
+                            Predicted: f.predicted_revenue,
+                            upper_bound: f.upper_bound,
+                            lower_bound: f.lower_bound
+                          }))
+                        ]}>
+                          <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                          <XAxis dataKey="month" axisLine={false} tickLine={false} />
+                          <YAxis axisLine={false} tickLine={false} tickFormatter={formatYAxis} />
+                          <Tooltip formatter={(val: number) => `₹${val.toLocaleString()}`} />
+                          <Legend verticalAlign="top" />
+                          <Area type="monotone" dataKey="upper_bound" stroke="none" fill="#e9d5ff" fillOpacity={0.3} name="Confidence Interval" />
+                          <Line type="monotone" dataKey="Actual" stroke="#2563eb" strokeWidth={3} dot={{ r: 4 }} name="Actual Revenue" connectNulls={false} />
+                          <Line type="monotone" dataKey="Predicted" stroke="#7c3aed" strokeWidth={3} strokeDasharray="5 5" dot={{ r: 4 }} name="AI Prediction" connectNulls={false} />
+                        </ComposedChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
           )}
 
