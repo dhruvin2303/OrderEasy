@@ -188,13 +188,38 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               );
             })}
           </nav>
-          <button
-            onClick={logout}
-            className="w-full flex items-center justify-center gap-3 px-4 py-4 text-rose-500 bg-rose-50 rounded-lg font-medium"
-          >
-            <LogOut className="w-5 h-5" />
-            Sign Out
-          </button>
+
+          <div className="mt-auto pt-4 border-t border-gray-100 flex flex-col gap-2">
+            {/* Mobile Profile & Settings Link */}
+            <Link
+              to="/settings"
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100 group hover:border-brand-200 hover:bg-brand-50/50 transition-all"
+            >
+              <div className="flex items-center gap-3 overflow-hidden">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-100 to-indigo-50 text-brand-700 flex items-center justify-center text-lg font-extrabold shadow-sm border border-brand-200/50 flex-shrink-0">
+                  {user?.logo_url ? (
+                    <img src={user.logo_url} alt="Logo" className="w-full h-full object-cover rounded-xl" />
+                  ) : (
+                    user?.username.charAt(0).toUpperCase()
+                  )}
+                </div>
+                <div className="min-w-0 pr-2">
+                  <p className="text-sm font-bold text-slate-900 truncate">{user?.organization}</p>
+                  <p className="text-xs text-slate-500 truncate font-medium">@{user?.username}</p>
+                </div>
+              </div>
+              <Settings className="w-5 h-5 text-slate-400 group-hover:text-brand-600 flex-shrink-0" />
+            </Link>
+
+            <button
+              onClick={logout}
+              className="w-full flex items-center justify-center gap-3 px-4 py-3.5 text-rose-500 bg-rose-50 hover:bg-rose-100 border border-transparent hover:border-rose-200 rounded-xl font-medium transition-all"
+            >
+              <LogOut className="w-5 h-5" />
+              Sign Out
+            </button>
+          </div>
         </div>
       )}
 
