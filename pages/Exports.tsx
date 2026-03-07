@@ -281,7 +281,9 @@ const Exports: React.FC = () => {
                                         {customerList.map(c => (
                                             <button
                                                 key={c}
-                                                onClick={() => {
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    e.stopPropagation();
                                                     setCustomerName(c);
                                                     setIsCustomerDropdownOpen(false);
                                                 }}
