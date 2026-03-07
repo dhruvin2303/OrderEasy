@@ -129,7 +129,7 @@ const Exports: React.FC = () => {
         badge?: string;
         children: React.ReactNode;
     }> = ({ icon: Icon, iconBg, title, sub, badge, children }) => (
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 flex flex-col h-full">
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 flex flex-col h-full relative z-10 hover:z-20">
             <div className="flex items-center gap-3 mb-4">
                 <div className={`p-3 rounded-lg flex-shrink-0 ${iconBg}`}>
                     <Icon className="w-6 h-6" />

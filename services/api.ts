@@ -1,8 +1,11 @@
-// Base URL for local development vs production
-// Automatically detects if running on localhost
-const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+// Automatically detects if running on localhost or a local network IP (for mobile testing)
+const isLocal = window.location.hostname === 'localhost' ||
+  window.location.hostname === '127.0.0.1' ||
+  window.location.hostname.startsWith('192.168.') ||
+  window.location.hostname.startsWith('10.');
+
 const BASE_URL = isLocal
-  ? 'http://localhost:8000'
+  ? `http://${window.location.hostname}:8000` // Use the exact IP the mobile device reached
   : 'https://ordereasy-backend-fwl1.onrender.com';
 
 export const api = {
@@ -44,7 +47,13 @@ export const api = {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      const msg = errorData.detail || `Server Error ${response.status}: ${response.statusText}`;
+      let msg = `Server Error ${response.status}: ${response.statusText}`;
+
+      if (errorData.detail) {
+        msg = typeof errorData.detail === 'string'
+          ? errorData.detail
+          : JSON.stringify(errorData.detail);
+      }
 
       // Dispatch global error event for Toast
       window.dispatchEvent(new CustomEvent('api-error', {
@@ -96,7 +105,13 @@ export const api = {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.detail || 'Download failed');
+        let msg = 'Download failed';
+        if (errorData.detail) {
+          msg = typeof errorData.detail === 'string'
+            ? errorData.detail
+            : JSON.stringify(errorData.detail);
+        }
+        throw new Error(msg);
       }
 
       const blob = await response.blob();
