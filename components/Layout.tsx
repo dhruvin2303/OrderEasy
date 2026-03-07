@@ -199,7 +199,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       )}
 
       {/* Main Content */}
-      <main className="flex-1 dynamic-main p-4 md:p-8 mt-16 md:mt-0 overflow-x-hidden animate-fade-in-up delay-100 max-w-full">
+      <main className="flex-1 dynamic-main p-4 md:p-8 mt-16 md:mt-0 animate-fade-in-up delay-100 max-w-full">
         {children}
       </main>
     </div>
