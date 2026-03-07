@@ -263,16 +263,11 @@ const Exports: React.FC = () => {
                     <Card icon={User} iconBg="bg-rose-50 text-rose-600" title="Customer Statement" sub="Complete account statement for one client." badge="New">
                         <div>
                             <Label>Select Customer</Label>
-                            {customerList.length > 0 ? (
-                                <select value={customerName} onChange={e => setCustomerName(e.target.value)}
-                                    className="w-full p-2 border border-slate-200 rounded-lg text-sm">
-                                    <option value="">— Choose a customer —</option>
-                                    {customerList.map(c => <option key={c} value={c}>{c}</option>)}
-                                </select>
-                            ) : (
-                                <input type="text" placeholder="Customer name" className="w-full p-2 border border-slate-200 rounded-lg text-sm"
-                                    value={customerName} onChange={e => setCustomerName(e.target.value)} />
-                            )}
+                            <select value={customerName} onChange={e => setCustomerName(e.target.value)}
+                                className="w-full p-2 border border-slate-200 rounded-lg text-sm">
+                                <option value="">— Choose a customer —</option>
+                                {customerList.map(c => <option key={c} value={c}>{c}</option>)}
+                            </select>
                         </div>
                         <p className="text-xs text-slate-400">Includes all orders, payments, and outstanding balance.</p>
                         <DualDownload
