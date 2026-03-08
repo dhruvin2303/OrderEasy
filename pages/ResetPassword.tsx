@@ -17,23 +17,31 @@ const ResetPassword = () => {
     const location = useLocation();
 
     useEffect(() => {
-        // Supabase redirects with the access_token in the URL hash
-        // Examle: #/reset-password#access_token=xyz&type=recovery
-        const hashParams = new URLSearchParams(location.hash.replace('#/reset-password#', ''));
+        // Supabase redirects to /#/reset-password#access_token=...&type=recovery
+        // The location.hash will contain everything after the first '#'
+        // For HashRouter, that includes /reset-password#access_token=...
 
-        // Sometimes it might just be the standard hash if react-router strips it differently
-        const token = hashParams.get('access_token') || new URLSearchParams(window.location.hash.substring(window.location.hash.indexOf('?') + 1)).get('access_token');
-
-        // Supabase specifically puts it in the fragment part `...#access_token=123`
-        // Let's force parse the raw window location to be safe:
         const rawHash = window.location.hash;
-        const rawParams = new URLSearchParams(rawHash.split('#')[2] || rawHash.split('?')[1] || rawHash);
-        const finalToken = rawParams.get('access_token');
 
-        if (finalToken) {
-            setAccessToken(finalToken);
-        } else {
-            // We will show an error if they land here without a token
+        // We look for access_token anywhere in the hash string
+        if (rawHash.includes('access_token')) {
+            // Split by '#' and find the part with access_token
+            const parts = rawHash.split('#');
+            const tokenPart = parts.find(p => p.includes('access_token'));
+
+            if (tokenPart) {
+                // Parse params from the part containing the token
+                const params = new URLSearchParams(tokenPart.includes('?') ? tokenPart.split('?')[1] : tokenPart);
+                const token = params.get('access_token');
+                if (token) {
+                    setAccessToken(token);
+                    return;
+                }
+            }
+        }
+
+        // Check if token is already set, if not, show error
+        if (!accessToken) {
             setStatus('error');
             setMessage('Invalid or missing secure reset token. Please request a new password reset link.');
         }
