@@ -63,7 +63,16 @@ const SpotlightCard = ({ icon: Icon, title, desc, delay }: { icon: any, title: s
     );
 };
 
-const comparisonData = [
+type PlanKey = 'ordereasy' | 'erp' | 'basic';
+
+type ComparisonRow = {
+    feature: string;
+    ordereasy: boolean | 'partial';
+    erp: boolean | 'partial';
+    basic: boolean | 'partial';
+};
+
+const comparisonData: ComparisonRow[] = [
     { feature: "Order Management", ordereasy: true, erp: true, basic: true },
     { feature: "Partial Delivery Management", ordereasy: true, erp: "partial", basic: false },
     { feature: "AI Business Analyst", ordereasy: true, erp: false, basic: false },
@@ -73,10 +82,77 @@ const comparisonData = [
     { feature: "User-Friendly UI", ordereasy: true, erp: false, basic: true },
 ];
 
-const RenderIcon = ({ status }: { status: boolean | string }) => {
-    if (status === true) return <div className="flex justify-center"><div className="bg-emerald-500/20 p-1.5 rounded-full shadow-[0_0_10px_rgba(16,185,129,0.3)]"><Check className="w-5 h-5 text-emerald-400" /></div></div>;
-    if (status === false) return <div className="flex justify-center"><X className="w-5 h-5 text-slate-400/50" /></div>;
-    return <div className="flex justify-center"><div className="bg-amber-500/20 p-1.5 rounded-full"><Minus className="w-5 h-5 text-amber-400" /></div></div>; // Partial
+type PlanInfo = {
+    key: PlanKey;
+    name: string;
+    subtitle: string;
+    description: string;
+    featured?: boolean;
+};
+
+const planCards: PlanInfo[] = [
+    {
+        key: 'ordereasy',
+        name: 'OrderEasy',
+        subtitle: 'Modern SaaS',
+        description: 'AI-driven forecasting, instant insights, and an ultra-intuitive interface built for speed and flexibility.',
+        featured: true,
+    },
+    {
+        key: 'erp',
+        name: 'Legacy ERP',
+        subtitle: 'Traditional Systems',
+        description: 'Heavy on setup and customization, with dated interfaces and long implementation cycles.',
+    },
+    {
+        key: 'basic',
+        name: 'Basic App',
+        subtitle: 'Simple Tooling',
+        description: 'Lightweight solution with limited functionality and minimal analytics capabilities.',
+    },
+];
+
+const RenderIcon = ({ status }: { status: boolean | 'partial' }) => {
+    if (status === true) {
+        return (
+            <motion.div
+                initial={{ scale: 0.75, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ type: 'spring', stiffness: 260, damping: 20 }}
+                className="flex justify-center"
+            >
+                <div className="bg-emerald-500/20 p-1.5 rounded-full shadow-[0_0_10px_rgba(16,185,129,0.35)]">
+                    <Check className="w-5 h-5 text-emerald-400" />
+                </div>
+            </motion.div>
+        );
+    }
+
+    if (status === false) {
+        return (
+            <motion.div
+                initial={{ opacity: 0, y: -6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.35 }}
+                className="flex justify-center"
+            >
+                <X className="w-5 h-5 text-slate-400/50" />
+            </motion.div>
+        );
+    }
+
+    return (
+        <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.35 }}
+            className="flex justify-center"
+        >
+            <div className="bg-amber-500/20 p-1.5 rounded-full">
+                <Minus className="w-5 h-5 text-amber-400" />
+            </div>
+        </motion.div>
+    );
 };
 
 // --- Parallax Section Wrapper ---
@@ -363,7 +439,7 @@ const Home: React.FC = () => {
                 </ParallaxSection>
             </section>
 
-            {/* Comparative Analysis Table with Scroll Reveal */}
+            {/* Comparative Analysis — Plan Cards */}
             <section className="py-24 relative z-10 overflow-hidden">
                 <ParallaxSection offset={-20}>
                     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -373,44 +449,62 @@ const Home: React.FC = () => {
                             <p className="text-slate-300 mt-6 text-lg drop-shadow-md">See how we stack up against traditional solutions.</p>
                         </div>
 
-                        <div className="overflow-hidden rounded-3xl border border-white/10 bg-slate-900/60 backdrop-blur-xl shadow-2xl relative">
-                            {/* Glowing backdrop for table */}
-                            <div className="absolute top-0 left-1/4 w-96 h-96 bg-brand-500/10 rounded-full blur-[100px] pointer-events-none"></div>
+                        <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-slate-900/60 backdrop-blur-xl shadow-2xl">
+                            <div className="absolute inset-0 bg-gradient-to-br from-brand-500/30 via-purple-500/20 to-slate-900/10" />
+                            <div className="absolute -top-24 left-1/2 sm:left-1/4 w-72 sm:w-96 h-72 sm:h-96 rounded-full bg-brand-500/20 blur-3xl" />
+                            <div className="absolute -bottom-24 right-1/2 sm:right-1/3 w-72 sm:w-96 h-72 sm:h-96 rounded-full bg-purple-500/20 blur-3xl" />
 
-                            <div className="grid grid-cols-4 p-8 border-b border-white/5 bg-white/5 text-sm font-semibold text-slate-300 backdrop-blur-sm">
-                                <div className="col-span-1">Feature</div>
-                                <div className="col-span-1 text-center text-brand-400 font-bold uppercase tracking-wider text-xs">OrderEasy</div>
-                                <div className="col-span-1 text-center font-medium uppercase tracking-wider text-xs opacity-70">Legacy ERP</div>
-                                <div className="col-span-1 text-center font-medium uppercase tracking-wider text-xs opacity-70">Basic App</div>
-                            </div>
-
-                            {comparisonData.map((row, i) => (
-                                <motion.div
-                                    initial={{ opacity: 0, x: -20 }}
-                                    whileInView={{ opacity: 1, x: 0 }}
-                                    viewport={{ once: true, margin: "-100px" }}
-                                    transition={{ delay: i * 0.1 }}
-                                    key={i}
-                                    className={`grid grid-cols-4 p-6 items-center border-b border-white/5 hover:bg-white/[0.05] transition-colors relative group ${i === comparisonData.length - 1 ? 'border-none' : ''}`}
-                                >
-                                    <div className="col-span-1 font-medium text-slate-200 text-sm md:text-lg group-hover:text-white transition-colors">{row.feature}</div>
-
-                                    {/* OrderEasy Column - Highlighted */}
-                                    <div className="col-span-1 relative flex justify-center">
-                                        <div className="absolute inset-0 bg-gradient-to-b from-brand-500/0 via-brand-500/5 to-brand-500/0 opacity-0 group-hover:opacity-100 transition-opacity w-full h-20 -top-4 rounded-lg blur-xl"></div>
-                                        <div className="relative z-10 font-bold text-white">
-                                            <RenderIcon status={row.ordereasy} />
+                            <div className="relative z-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 p-8">
+                                {planCards.map((plan, index) => (
+                                    <motion.div
+                                        key={plan.key}
+                                        initial={{ opacity: 0, y: 20 }}
+                                        whileInView={{ opacity: 1, y: 0 }}
+                                        viewport={{ once: true, margin: '-120px' }}
+                                        transition={{ duration: 0.7, delay: index * 0.12 }}
+                                        whileHover={{ y: -8, scale: 1.02 }}
+                                        className="group relative rounded-2xl border border-white/10 bg-slate-900/60 p-6 shadow-xl backdrop-blur-lg hover:border-brand-400/40 hover:shadow-[0_25px_60px_-15px_rgba(99,102,241,0.35)] transition"
+                                    >
+                                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <div className="absolute -inset-2 rounded-2xl bg-gradient-to-br from-brand-400/20 to-purple-500/10 blur-3xl" />
                                         </div>
-                                    </div>
 
-                                    <div className="col-span-1">
-                                        <RenderIcon status={row.erp} />
-                                    </div>
-                                    <div className="col-span-1">
-                                        <RenderIcon status={row.basic} />
-                                    </div>
-                                </motion.div>
-                            ))}
+                                        <div className="relative">
+                                            <div className="flex items-start justify-between gap-4">
+                                                <div>
+                                                    <div className="text-xs font-semibold tracking-widest uppercase text-slate-200/60">{plan.subtitle}</div>
+                                                    <h3 className="mt-2 text-2xl font-bold text-white tracking-tight">{plan.name}</h3>
+                                                </div>
+
+                                                {plan.featured && (
+                                                    <span className="whitespace-nowrap rounded-full bg-brand-500/20 px-3 py-1 text-xs font-semibold text-brand-100 ring-1 ring-brand-500/25">
+                                                        Recommended
+                                                    </span>
+                                                )}
+                                            </div>
+
+                                            <p className="mt-4 text-sm leading-relaxed text-slate-300">
+                                                {plan.description}
+                                            </p>
+
+                                            <div className="mt-6 space-y-3">
+                                                {comparisonData.map((row) => (
+                                                    <div
+                                                        key={row.feature}
+                                                        className="flex items-center justify-between rounded-xl bg-white/5 px-4 py-3 text-sm transition hover:bg-white/10"
+                                                    >
+                                                        <div className="flex items-start gap-3">
+                                                            <span className="mt-1 h-2.5 w-2.5 rounded-full bg-brand-500/60" />
+                                                            <span className="text-slate-200">{row.feature}</span>
+                                                        </div>
+                                                        <RenderIcon status={row[plan.key]} />
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                ))}
+                            </div>
                         </div>
                     </div>
                 </ParallaxSection>
