@@ -1,7 +1,30 @@
 import React, { useRef, MouseEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, useMotionTemplate, useMotionValue, useScroll, useTransform, Variants } from 'framer-motion';
-import { ArrowRight, BarChart2, Truck, Database, ShieldCheck, Zap, PieChart, Check, X, Minus, Mail, Send } from 'lucide-react';
+import { motion, useMotionTemplate, useMotionValue, useScroll, useTransform, useInView, Variants } from 'framer-motion';
+import {
+    ArrowRight,
+    BarChart2,
+    Truck,
+    Database,
+    ShieldCheck,
+    Zap,
+    PieChart,
+    Check,
+    X,
+    Minus,
+    Mail,
+    Send,
+    Users,
+    Package,
+    TrendingUp,
+    Clock,
+    FileText,
+    Cloud,
+    Rocket,
+    Smartphone,
+    Layers,
+    Bolt,
+} from 'lucide-react';
 import { SEO } from '../components/SEO';
 
 const fadeInUp: Variants = {
@@ -62,6 +85,179 @@ const SpotlightCard = ({ icon: Icon, title, desc, delay }: { icon: any, title: s
         </motion.div>
     );
 };
+
+const benefits = [
+    {
+        icon: FileText,
+        problem: 'Manual spreadsheets everywhere, no single source of truth.',
+        solution: 'Centralize orders, inventory and invoices in one live platform.',
+        focus: 'One source of truth for every team',
+    },
+    {
+        icon: Bolt,
+        problem: 'Forecasting is guesswork and takes too long.',
+        solution: 'AI-powered demand predictions that refresh automatically.',
+        focus: 'Forecasts that update as your data changes',
+    },
+    {
+        icon: Clock,
+        problem: 'Delayed deliveries frustrate customers and teams.',
+        solution: 'Track status in real time and prioritize late orders instantly.',
+        focus: 'Proactive alerts for late and at-risk shipments',
+    },
+    {
+        icon: Layers,
+        problem: 'Data hidden across tools makes insights impossible.',
+        solution: 'All your business metrics in one dashboard, not scattered tabs.',
+        focus: 'A single pane for every metric and KPI',
+    },
+];
+
+const BenefitsGrid = () => {
+    const sectionRef = useRef<HTMLElement | null>(null);
+    const inView = useInView(sectionRef, { once: true, margin: '-120px' });
+
+    const containerVariants: Variants = {
+        hidden: { opacity: 0, y: 30 },
+        visible: { opacity: 1, y: 0, transition: { staggerChildren: 0.14, delayChildren: 0.2 } },
+    };
+
+    const cardVariants: Variants = {
+        hidden: { opacity: 0, y: 24, scale: 0.98 },
+        visible: {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            transition: {
+                type: 'spring',
+                stiffness: 120,
+                damping: 16,
+            },
+        },
+    };
+
+    return (
+        <section ref={sectionRef} className="py-24 relative z-10">
+            <div className="pointer-events-none absolute inset-0 overflow-hidden">
+                <motion.div
+                    initial={{ opacity: 0, scale: 1.1, x: -50, y: -50 }}
+                    animate={inView ? { opacity: 0.4, x: 0, y: 0, scale: 1 } : {}}
+                    transition={{ duration: 1.2, ease: 'easeOut' }}
+                    className="absolute left-1/2 top-1/3 h-[420px] w-[420px] -translate-x-1/2 rounded-full bg-gradient-to-r from-brand-500/50 to-purple-500/30 blur-3xl"
+                />
+                <motion.div
+                    initial={{ opacity: 0, scale: 1.2, x: 50, y: 40 }}
+                    animate={inView ? { opacity: 0.3, x: 0, y: 0, scale: 1 } : {}}
+                    transition={{ duration: 1.3, ease: 'easeOut' }}
+                    className="absolute right-1/3 bottom-1/4 h-[360px] w-[360px] rounded-full bg-gradient-to-tr from-cyan-400/30 via-brand-500/20 to-slate-900/0 blur-3xl"
+                />
+            </div>
+
+            <ParallaxSection offset={25}>
+                <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="text-center mb-14">
+                        <h2 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400 mb-4 drop-shadow-lg">Benefits That Matter</h2>
+                        <p className="text-slate-300 text-lg max-w-2xl mx-auto">Stop solving workarounds and start focusing on what moves the business.</p>
+                    </div>
+
+                    <motion.div
+                        variants={containerVariants}
+                        initial="hidden"
+                        animate={inView ? 'visible' : 'hidden'}
+                        className="grid grid-cols-1 md:grid-cols-2 gap-6"
+                    >
+                        {benefits.map((item) => (
+                            <motion.div
+                                key={item.problem}
+                                variants={cardVariants}
+                                whileHover={{ y: -8, boxShadow: '0 25px 60px rgba(0,0,0,0.35)' }}
+                                className="relative overflow-hidden rounded-3xl border border-white/10 bg-slate-900/50 p-8 shadow-2xl backdrop-blur-xl transition"
+                            >
+                                <div className="absolute -inset-2 rounded-3xl bg-gradient-to-br from-brand-500/20 via-purple-500/20 to-slate-900/10 opacity-0 transition-opacity duration-500 group-hover:opacity-70" />
+                                <div className="relative z-10 flex flex-col gap-6">
+                                    <div className="flex items-start gap-4">
+                                        <div className="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-500/20 to-purple-500/20 shadow-[0_0_0_1px_rgba(255,255,255,0.12)]">
+                                            <item.icon className="h-6 w-6 text-white" />
+                                            <span className="absolute -right-2 -top-2 h-5 w-5 rounded-full bg-emerald-400/80 blur-sm" />
+                                        </div>
+                                        <div className="flex-1">
+                                            <p className="text-sm font-semibold text-white">{item.problem}</p>
+                                            <p className="mt-3 text-sm text-slate-300">{item.solution}</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-center gap-3">
+                                        <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-white">
+                                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                                            {item.focus}
+                                        </span>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        ))}
+                    </motion.div>
+                </div>
+            </ParallaxSection>
+        </section>
+    );
+};
+
+const whyDifferent = [
+    {
+        icon: Cloud,
+        title: 'Cloud‑First Architecture',
+        desc: 'Access your data anywhere without on‑prem maintenance or costly hardware.',
+    },
+    {
+        icon: Rocket,
+        title: 'Zero Setup',
+        desc: 'Get started in minutes with guided onboarding and prebuilt templates.',
+    },
+    {
+        icon: BarChart2,
+        title: 'Data‑Driven Decisions',
+        desc: 'Insights and recommended actions are delivered automatically, not buried in spreadsheets.',
+    },
+    {
+        icon: Smartphone,
+        title: 'Mobile Ready',
+        desc: 'Manage orders, approvals, and updates from your phone on the go.',
+    },
+];
+
+const WhyDifferent = () => (
+    <section className="py-24 relative z-10">
+        <ParallaxSection offset={25}>
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="text-center mb-14">
+                    <h2 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400 mb-4 drop-shadow-lg">Why It’s Different</h2>
+                    <p className="text-slate-300 text-lg max-w-2xl mx-auto">Built for modern teams that need speed, visibility, and flexibility.</p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {whyDifferent.map((item) => (
+                        <motion.div
+                            key={item.title}
+                            whileHover={{ y: -6 }}
+                            className="relative rounded-2xl border border-white/10 bg-slate-900/50 p-8 shadow-2xl backdrop-blur-lg transition"
+                        >
+                            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <div className="absolute -inset-2 rounded-2xl bg-gradient-to-br from-brand-500/20 to-purple-500/10 blur-3xl" />
+                            </div>
+                            <div className="relative z-10 flex flex-col h-full">
+                                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-500/15 text-brand-200 mb-5">
+                                    <item.icon className="h-6 w-6" />
+                                </div>
+                                <h3 className="text-xl font-semibold text-white mb-3">{item.title}</h3>
+                                <p className="text-slate-300 text-sm leading-relaxed flex-1">{item.desc}</p>
+                            </div>
+                        </motion.div>
+                    ))}
+                </div>
+            </div>
+        </ParallaxSection>
+    </section>
+);
 
 type PlanKey = 'ordereasy' | 'erp' | 'basic';
 
@@ -358,9 +554,18 @@ const Home: React.FC = () => {
 
                             <motion.p
                                 variants={fadeInUp}
-                                className="text-xl text-slate-300 mb-10 max-w-2xl mx-auto leading-relaxed drop-shadow-lg"
+                                className="text-xl text-slate-300 mb-4 max-w-2xl mx-auto leading-relaxed drop-shadow-lg"
                             >
                                 Track orders, manage partial deliveries, upload bills, and analyze everything with interactive charts to turn your data into clear business insights.
+                            </motion.p>
+
+                            <motion.p
+                                variants={fadeInUp}
+                                className="text-xl md:text-2xl font-semibold max-w-2xl mx-auto leading-relaxed"
+                            >
+                                <span className="bg-clip-text text-transparent bg-gradient-to-r from-brand-400 via-indigo-400 to-purple-400">
+                                    Turn every order into insight, every delivery into confidence.
+                                </span>
                             </motion.p>
 
                             <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-4 justify-center items-center">
@@ -438,6 +643,12 @@ const Home: React.FC = () => {
                     </div>
                 </ParallaxSection>
             </section>
+
+            {/* Benefits Grid (Problem → Solution) */}
+            <BenefitsGrid />
+
+            {/* Why It’s Different (Value Props) */}
+            <WhyDifferent />
 
             {/* Comparative Analysis — Plan Cards */}
             <section className="py-24 relative z-10 overflow-hidden">
