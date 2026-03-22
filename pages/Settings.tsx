@@ -1,3 +1,10 @@
+/**
+ * @file Settings.tsx
+ * @description User preferences and account management gateway.
+ * Provides controls for profile information, security settings, and account lifecycle.
+ * @author OrderEazy Team
+ */
+
 import React, { useState } from 'react';
 import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
@@ -5,6 +12,13 @@ import { Trash2, AlertTriangle, CheckCircle, User, Shield, Key, ChevronRight, Sa
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
+/**
+ * Settings Component
+ * @component
+ * @description Centralized hub for users to manage their organization profile,
+ * update security credentials, and handle administrative account actions.
+ * @returns {React.FC} The rendered Settings page.
+ */
 const Settings: React.FC = () => {
     const { user, logout, updateUser } = useAuth();
     const navigate = useNavigate();
@@ -23,6 +37,12 @@ const Settings: React.FC = () => {
     // Global Notification Toast
     const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
+    /**
+     * Displays a transient notification toast to the user.
+     * @function showNotification
+     * @param {string} message - The message to display.
+     * @param {'success' | 'error'} type - The visual style of the notification.
+     */
     const showNotification = (message: string, type: 'success' | 'error') => {
         setNotification({ message, type });
         setTimeout(() => setNotification(null), 3000);
@@ -31,6 +51,14 @@ const Settings: React.FC = () => {
     // Delete Account State
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
+    /**
+     * Handles the password change workflow.
+     * Validates matching passwords and communicates with the authentication API.
+     * @async
+     * @function handleChangePassword
+     * @param {React.FormEvent} e - The form submission event.
+     * @returns {Promise<void>}
+     */
     const handleChangePassword = async (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -55,6 +83,13 @@ const Settings: React.FC = () => {
         }
     };
 
+    /**
+     * Permanently deletes the user account and associated organizational data.
+     * Triggers logout and redirects to the login screen upon success.
+     * @async
+     * @function handleDeleteAccount
+     * @returns {Promise<void>}
+     */
     const handleDeleteAccount = async () => {
 
         try {
@@ -72,6 +107,14 @@ const Settings: React.FC = () => {
         ...(!user?.is_admin ? [{ id: 'danger', label: 'Danger Zone', icon: Trash2, desc: 'Delete account and data' }] : [])
     ];
 
+    /**
+     * Manages organization logo uploads.
+     * Interfaces with Cloudinary for storage and updates the user profile with the new URL.
+     * @async
+     * @function handleLogoUpload
+     * @param {React.ChangeEvent<HTMLInputElement>} e - The input change event containing the file.
+     * @returns {Promise<void>}
+     */
     const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (!e.target.files || e.target.files.length === 0) return;
         const file = e.target.files[0];

@@ -1,3 +1,10 @@
+/**
+ * @file Orders.tsx
+ * @description Comprehensive order management page for the OrderEazy platform.
+ * Handles order visualization, filtering, sorting, creation, and data export.
+ * @author OrderEazy Team
+ */
+
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { api } from '../services/api';
@@ -9,6 +16,13 @@ import TableSkeleton from '../components/skeletons/TableSkeleton';
 import { DynamicFieldsInput, CustomField } from '../components/DynamicFieldsInput';
 import { SEO } from '../components/SEO';
 
+/**
+ * Orders Component
+ * @component
+ * @description The primary dashboard for managing business orders. Includes real-time filtering,
+ * advanced sorting, and a modal-driven interface for new order creation.
+ * @returns {React.FC} The rendered Orders management view.
+ */
 const Orders: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -60,6 +74,13 @@ const Orders: React.FC = () => {
   };
   const [customFields, setCustomFields] = useState<CustomField[]>([]);
 
+  /**
+   * Fetches the current list of orders from the backend API.
+   * Updates the component state and manages loading transitions.
+   * @async
+   * @function fetchOrders
+   * @returns {Promise<void>}
+   */
   const fetchOrders = async () => {
     try {
       const data = await api.get<Order[]>('/orders/');
@@ -79,6 +100,13 @@ const Orders: React.FC = () => {
     setAlertState({ isOpen: true, title, message });
   };
 
+  /**
+   * Triggers a download of the orders report in Excel format.
+   * Communicates with the export service to generate and serve the file.
+   * @async
+   * @function handleExport
+   * @returns {Promise<void>}
+   */
   const handleExport = async () => {
     try {
       await api.download('/exports/orders?status=all', 'orders.xlsx');
@@ -87,6 +115,15 @@ const Orders: React.FC = () => {
     }
   };
 
+  /**
+   * Handles the submission of the "New Order" form.
+   * Processes form data, including dynamic custom fields, and sends it to the server.
+   * Includes error handling for network issues and form validation feedback.
+   * @async
+   * @function handleCreate
+   * @param {React.FormEvent} e - The form submission event.
+   * @returns {Promise<void>}
+   */
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -201,6 +238,12 @@ const Orders: React.FC = () => {
     return 0;
   });
 
+  /**
+   * Updates the sorting configuration based on the selected column.
+   * Cycles through 'ascending', 'descending', and 'null' (no sort) states.
+   * @function requestSort
+   * @param {string} key - The data key to sort by.
+   */
   const requestSort = (key: string) => {
     if (sortConfig && sortConfig.key === key) {
       if (sortConfig.direction === 'asc') {
