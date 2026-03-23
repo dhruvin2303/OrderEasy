@@ -1,8 +1,7 @@
 User-agent: *
 Allow: /
-Allow: /dashboard
-Allow: /analytics
-Allow: /orders
-Allow: /exports
+Disallow: /admin
+Disallow: /settings
+Disallow: /dashboard
 
 Sitemap: https://order-easy-blond.vercel.app/sitemap.xml

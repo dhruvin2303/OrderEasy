@@ -481,9 +481,9 @@ const Home: React.FC = () => {
     return (
         <div ref={targetRef} className="min-h-screen bg-[#05050A] text-slate-100 overflow-x-hidden selection:bg-brand-500 selection:text-white font-sans relative">
             <SEO
-                title="Home"
-                description="Welcome to OrderEazy. One Platform to Manage Orders & Turn Data into Actionable Insights. AI business analyst, smart delivery, and instant sync."
-                keywords="ordereazy, order management system, inventory tracking, ai business analyst, smart delivery, instant data exports, supply chain"
+                title="OrderEasy - Advanced Order Management & Analytics Platform"
+                description="OrderEasy: Manage orders, track deliveries, and gain real-time analytics. The ultimate order management system for modern businesses to optimize their operations."
+                keywords="OrderEasy, Order Management, Order Analytics, Order Management System, Order Tracking, Business Insights, Delivery Management, Supply Chain Optimization"
             />
             {/* Visual Analytics Background with Parallax */}
             <div className="fixed inset-0 z-0 pointer-events-none">
