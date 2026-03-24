@@ -1,5 +1,14 @@
 import React, { useId } from 'react';
 
+/**
+ * Logo component for OrderEazy application.
+ * Renders a stylized SVG logo with a dynamic gradient and shadow.
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {string} [props.className="w-8 h-8"] - Tailwind CSS classes for styling the SVG container
+ * @returns {JSX.Element} The rendered SVG logo
+ */
 export const Logo = ({ className = "w-8 h-8" }: { className?: string }) => {
     const gradientId = useId();
     const shadowId = useId();

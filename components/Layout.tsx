@@ -15,10 +15,25 @@ import {
 import { Logo } from './Logo';
 import { Link, useLocation } from 'react-router-dom'; // Will use HashRouter in App.tsx
 
+/**
+ * Props for the Layout component.
+ */
 interface LayoutProps {
+  /** The content to be rendered within the main content area */
   children: React.ReactNode;
 }
 
+/**
+ * Main application layout component.
+ * Provides a responsive sidebar, header for mobile, and main content area.
+ * Features:
+ * - Dynamic sidebar width with resizing capability.
+ * - Mobile menu for smaller screens.
+ * - Integration with AuthContext for user-specific navigation.
+ * 
+ * @component
+ * @returns {JSX.Element} The rendered Layout component
+ */
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { user, logout } = useAuth();
   const location = useLocation();
