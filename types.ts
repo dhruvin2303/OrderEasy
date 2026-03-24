@@ -13,7 +13,6 @@ export interface User {
   /** A URL pointing to the user's or organization's logo image (optional). */
   logo_url?: string;
 }
-
 /**
  * Represents a sales order in the system.
  */
