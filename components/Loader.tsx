@@ -2,11 +2,24 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Logo } from './Logo'; // Reusing your existing SVG component
 
+/**
+ * Props for the Loader component.
+ */
 interface LoaderProps {
+    /** The message to display under the loading animation */
     message?: string;
+    /** If true, the loader will occupy the full screen with a backdrop */
     fullScreen?: boolean;
 }
 
+/**
+ * A reusable loading component featuring a stylized animation and the app logo.
+ * Supports both full-screen overlay and inline centering.
+ * 
+ * @component
+ * @param {LoaderProps} props - Component props
+ * @returns {JSX.Element} The rendered Loader component
+ */
 export const Loader: React.FC<LoaderProps> = ({ message = 'Loading Data...', fullScreen = false }) => {
     const containerClasses = fullScreen
         ? "fixed inset-0 z-50 flex flex-col items-center justify-center bg-gray-50/80 backdrop-blur-md"
