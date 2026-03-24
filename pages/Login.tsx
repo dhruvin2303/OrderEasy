@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
-import { ArrowRight, Lock, User, Building2, AlertCircle, Mail, KeyRound, Shield, Home as HomeIcon } from 'lucide-react';
+import { ArrowRight, Lock, User, Building2, AlertCircle, Mail, KeyRound, Shield, Home as HomeIcon, Eye, EyeOff } from 'lucide-react';
 import { Logo } from '../components/Logo';
 
 const Login: React.FC = () => {
@@ -18,6 +18,23 @@ const Login: React.FC = () => {
   const [timer, setTimer] = useState(0);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+
+  // Password Strength Logic
+  const getPasswordStrength = (password: string) => {
+    if (!password) return 0;
+    let strength = 0;
+    if (password.length >= 8) strength += 1;
+    if (/[A-Z]/.test(password)) strength += 1;
+    if (/[0-9]/.test(password)) strength += 1;
+    if (/[^A-Za-z0-9]/.test(password)) strength += 1;
+    return strength;
+  };
+
+  const strength = getPasswordStrength(formData.password);
+  const strengthColors = ['bg-slate-200', 'bg-rose-500', 'bg-orange-500', 'bg-amber-500', 'bg-emerald-500'];
+  const strengthLabels = ['', 'Weak', 'Fair', 'Good', 'Strong'];
+
 
   // Timer Countdown Logic
   React.useEffect(() => {
@@ -238,16 +255,43 @@ const Login: React.FC = () => {
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
                 <input
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   required
-                  className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all outline-none"
+                  className="w-full pl-10 pr-12 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all outline-none"
                   placeholder="••••••••"
                   value={formData.password}
                   onChange={e => setFormData({ ...formData, password: e.target.value })}
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                >
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
               </div>
+              
+              {!isLogin && formData.password && (
+                <div className="mt-2 animate-in fade-in slide-in-from-top-1">
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Security Strength</span>
+                    <span className={`text-[10px] font-bold ${strength >= 3 ? 'text-emerald-600' : 'text-slate-500'}`}>
+                      {strengthLabels[strength]}
+                    </span>
+                  </div>
+                  <div className="flex gap-1 h-1">
+                    {[1, 2, 3, 4].map((step) => (
+                      <div 
+                        key={step}
+                        className={`flex-1 rounded-full transition-all duration-500 ${step <= strength ? strengthColors[strength] : 'bg-slate-100'}`}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {!isLogin ? (
-                <p className="text-xs text-slate-400 mt-1">Must contain 1 letter, 1 number, 1 special char.</p>
+                <p className="text-xs text-slate-400 mt-2">Must contain 1 letter, 1 number, 1 special char.</p>
               ) : (
                 <div className="text-right mt-1.5">
                   <Link to="/forgot-password" className="text-xs font-semibold text-brand-600 hover:text-brand-700 hover:underline">
