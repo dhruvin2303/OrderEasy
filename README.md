@@ -58,7 +58,7 @@ Explore the interactive interface live on Vercel:,
 
 1. **Clone & Install**:
    ```bash
-   git clone [repository-url]
+   git clone https://github.com/krish1440/OrderEasy
    cd OrderEazy/Fronted
    npm install
    ```
