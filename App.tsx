@@ -17,6 +17,8 @@ import Admin from './pages/Admin';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import Privacy from './pages/Privacy';
+import TermsOfService from './pages/TermsOfService';
+import NotFound from './pages/NotFound';
 
 // ... (previous imports)
 
@@ -45,6 +47,7 @@ const AppRoutes = () => {
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/privacy" element={<Privacy />} />
+      <Route path="/terms" element={<TermsOfService />} />
 
       {/* Protected Dashboard */}
       <Route path="/dashboard" element={
@@ -89,7 +92,7 @@ const AppRoutes = () => {
         </ProtectedRoute>
       } />
 
-      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 }
