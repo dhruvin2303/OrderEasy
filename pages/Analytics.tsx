@@ -41,7 +41,8 @@ import {
   Cell,
   ScatterChart,
   Scatter,
-  ZAxis
+  ZAxis,
+  Brush
 } from 'recharts';
 import {
   Sparkles,
@@ -961,12 +962,26 @@ const Analytics: React.FC = () => {
                         ]}>
                           <CartesianGrid strokeDasharray="3 3" vertical={false} />
                           <XAxis dataKey="month" axisLine={false} tickLine={false} />
-                          <YAxis axisLine={false} tickLine={false} tickFormatter={formatYAxis} />
+                          <YAxis 
+                            axisLine={false} 
+                            tickLine={false} 
+                            tickFormatter={formatYAxis} 
+                            scale="sqrt"
+                            domain={[0, 'auto']}
+                          />
                           <Tooltip formatter={(val: number) => `₹${val.toLocaleString()}`} />
                           <Legend verticalAlign="top" />
                           <Area type="monotone" dataKey="upper_bound" stroke="none" fill="#e9d5ff" fillOpacity={0.3} name="Confidence Interval" />
                           <Line type="monotone" dataKey="Actual" stroke="#2563eb" strokeWidth={3} dot={{ r: 4 }} name="Actual Revenue" connectNulls={false} />
                           <Line type="monotone" dataKey="Predicted" stroke="#7c3aed" strokeWidth={3} strokeDasharray="5 5" dot={{ r: 4 }} name="AI Prediction" connectNulls={false} />
+                          <Brush 
+                            dataKey="month" 
+                            height={30} 
+                            stroke="#7c3aed" 
+                            fill="#f8fafc" 
+                            travellerWidth={10} 
+                            tickFormatter={() => ''} 
+                          />
                         </ComposedChart>
                       </ResponsiveContainer>
                     </div>
