@@ -72,4 +72,4 @@ Explore the interactive interface live on Vercel:,
    ```
 
 ---
-Built to empower **Small & Medium Enterprises** everywhere.
+Built to empower **Small & Medium Enterprises** everywhere .
